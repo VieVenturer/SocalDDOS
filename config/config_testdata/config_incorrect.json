@@ -1,0 +1,40 @@
+{
+    "request_count": 100,
+    "load_type": "linear",
+    "duration": 10,
+    "steps": [
+        {
+            "id": 1,
+            "url": "https://app.servdown.com/accounts/login/?next=/",
+            "auth": {
+                "type": "basic",
+                "username": "kursat",
+                "password": "12345"
+            },
+            "method": "GET",
+            "headers": {
+                "ContenType": "application/xml",
+                "User-Agent": "chrome5"
+            },
+            "payload": "body yt kanl adnlandlandaln",
+            "timeout": 1,
+            "others": {
+            }
+        },
+        {
+            "id": 2,
+            "url": "https://app.servdown.com/accounts/login/?next=/&112f12f12f12f",
+            "method": "GET",
+            "headers": {
+                "ContenType": "application/xml",
+                "X-ddosify-key": "ajkndalnasd"
+            },
+            "payload_file": "config_examples/payload.txt",
+            "timeout": 1,
+            "others": {
+            }
+        },
+    ],
+    "proxy": "http://proxy_host:80",
+    "output": "stdout"
+}

@@ -1,0 +1,127 @@
+// This file contains full features of Ddosify as a reference. Don't use it directly.
+{
+    "request_count": 30, // This field will be deprecated, please use iteration_count instead.
+    "iteration_count": 30,
+    "debug" : false, // use this field for debugging, see verbose result
+    "load_type": "linear",
+    "engine_mode": "distinct-user", // could be one of  "distinct-user","repeated-user", or default mode "ddosify"
+    "duration": 5,
+    "manual_load": [
+        {"duration": 5, "count": 5},
+        {"duration": 6, "count": 10},
+        {"duration": 7, "count": 20}
+    ],
+    "env" : {
+        "HTTPBIN" : "https://httpbin.ddosify.com",
+        "LOCAL" : "http://localhost:8084",
+        "NAMES" : ["kenan","fatih","kursat","semih","sertac"] ,
+        "NUMBERS" : [52,99,60,33],
+        "BOOLS" : [true,true,true,false],
+        "randomIntPerIteration": "{{_randomInt}}"
+    },
+    "data":{
+        "info": {
+            "path" : "config/config_testdata/test.csv",
+            "delimiter": ";",
+            "vars": {
+                    "0":{"tag":"name"},
+                    "1":{"tag":"city"},
+                    "2":{"tag":"team"},
+                    "3":{"tag":"payload", "type":"json"},
+                    "4":{"tag":"age", "type":"int"}
+                  },
+            "allow_quota" : true,
+            "order": "random",
+            "skip_first_line" : true,
+            "skip_empty_line" : true
+        }
+    },
+    "success_criterias": [
+        {
+          "rule" : "p90(iteration_duration) < 220", 
+          "abort" : false
+        },
+        {
+          "rule" : "fail_count_perc < 0.1", 
+          "abort" : true,
+          "delay" : 1
+        },
+        {
+          "rule" : "fail_count < 100", 
+          "abort" : true,
+          "delay" : 0
+        }
+    ],
+    "proxy": "http://proxy_host.com:proxy_port",
+    "output": "stdout",
+    "steps": [
+        {
+            "id": 1,
+            "url": "https://test_site1.com/endpoint_1",
+            "method": "POST",
+            "headers": {
+                "Content-Type": "application/xml",
+                "header1": "header2"
+            },
+            "payload": "Body content 1",
+            "timeout": 3,
+            "sleep": "300-500",
+            "auth": {
+                "username": "test_user",
+                "password": "12345"
+            },
+            "others": {
+                "disable-compression": false,
+                "h2": true,
+                "disable-redirect": true
+            },
+            "capture_env": {
+                "NUM" :{ "from":"body","json_path":"num"}
+            },
+            "assertion":[
+                "equals(status_code,200)",
+                "in(variables.num,[10,20])"
+            ]
+        },
+        {
+            "id": 2,
+            "url": "{{LOCAL}}",
+            "method": "GET",
+            "payload_file": "config_examples/payload.txt",
+            "timeout": 2,
+            "sleep": "1000",
+            "headers":{
+                "num": "{{NUM}}",
+                "randNum": "{{rand(NUMBERS)}}",
+                "randInt" : "{{randomIntPerIteration}}"
+            },
+            "assertion":[
+                "contains(body,\"xyz\")",
+                "range(headers.content-length,1000,10000)"
+            ]
+        },
+        {
+            "id": 3,
+            "url": "https://test_site1.com/endpoint_3",
+            "method": "POST",
+            "payload_multipart": [
+                {
+                    "name": "[field-name]",
+                    "value": "[field-value]"
+                },
+                {
+                    "name": "[field-name]",
+                    "value": "./test.png",
+                    "type": "file"
+                },
+                {
+                    "name": "[field-name]",
+                    "value": "http://test.com/test.png",
+                    "type": "file",
+                    "src": "remote"
+                }
+            ],
+            "timeout": 2
+        }
+    ]
+}
